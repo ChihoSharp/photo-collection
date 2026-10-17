@@ -7,50 +7,50 @@ on:
 
 env:
   PROJECT_ID: 'a-photo-gallery-507623'
-  REGION: 'europe-west2' # Change to your chosen region (e.g., us-central1, europe-west1)
-  GAR_REPOSITORY: 'photo-gallery' # Your Artifact Registry repository name
-  SERVICE_NAME: 'photo-gallery-service' # Cloud Run service name
+  REGION: 'europe-west2' # London region
+  GAR_REPOSITORY: 'photo-gallery'
+  SERVICE_NAME: 'photo-gallery'
+  WIF_PROVIDER: 'projects/343219569614/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+  WIF_SERVICE_ACCOUNT: '343219569614-compute@developer.gserviceaccount.com'
 
 jobs:
   deploy:
-    name: Deploy to Google Cloud
+    name: Build & Deploy Container
     runs-on: ubuntu-latest
 
     permissions:
       contents: 'read'
-      id-token: 'write' # Required for Workload Identity Federation OIDC
+      id-token: 'write'
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Google Cloud Authentication via WIF
+      - name: Authenticate to Google Cloud via WIF
         id: auth
         uses: google-github-actions/auth@v2
         with:
-          # Format: projects/<PROJECT_NUMBER>/locations/global/workloadIdentityPools/<POOL_NAME>/providers/<PROVIDER_NAME>
-          workload_identity_provider: 'projects/343219569614/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-          # Format: <SERVICE_ACCOUNT_NAME>@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
-          service_account: 'github-actions-sa@a-photo-gallery-507623.iam.gserviceaccount.com'
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT || env.WIF_SERVICE_ACCOUNT }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Configure Docker for Artifact Registry
+      - name: Authorize Docker to Artifact Registry
         run: |
           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
-      - name: Build and Push Container Image
+      - name: Build and Push Docker Image
         run: |
-          IMAGE_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
-          docker build -t "$IMAGE_TAG" .
-          docker push "$IMAGE_TAG"
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          IMAGE_URI="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+          docker build -t "$IMAGE_URI" .
+          docker push "$IMAGE_URI"
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
 
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.SERVICE_NAME }}
           region: ${{ env.REGION }}
-          image: ${{ env.IMAGE_TAG }}
+          image: ${{ env.IMAGE_URI }}
           flags: '--allow-unauthenticated'
