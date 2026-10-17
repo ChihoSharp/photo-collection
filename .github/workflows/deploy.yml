@@ -29,9 +29,9 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           # Format: projects/<PROJECT_NUMBER>/locations/global/workloadIdentityPools/<POOL_NAME>/providers/<PROVIDER_NAME>
-          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          workload_identity_provider: 'projects/343219569614/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           # Format: <SERVICE_ACCOUNT_NAME>@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
-          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          service_account: 'github-actions-sa@a-photo-gallery-507623.iam.gserviceaccount.com'
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
