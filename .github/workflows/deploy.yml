@@ -8,7 +8,7 @@ on:
 env:
   PROJECT_ID: 'a-photo-gallery-507623'
   REGION: 'europe-west1' # London region
-  GAR_REPOSITORY: 'photo-gallery'
+  GAR_REPOSITORY: 'cloud-run-source-deploy'
   SERVICE_NAME: 'photo-collection'
   WIF_PROVIDER: 'projects/343219569614/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
   WIF_SERVICE_ACCOUNT: '343219569614-compute@developer.gserviceaccount.com'
