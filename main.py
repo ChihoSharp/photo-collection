@@ -21,7 +21,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "replace-with-a-secure-random-key")
 
 # Set the password via environment variable (default: 'admin123' for testing)
-GALLERY_PASSWORD = os.environ.get("GALLERY_PASSWORD", "sunshine369")
+GALLERY_PASSWORD = os.environ.get("GALLERY_PASSWORD", "admin123")
 
 storage_client = storage.Client()
 firestore_client = firestore.Client()
